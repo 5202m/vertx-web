@@ -1,0 +1,19 @@
+doctype html  
+html  
+  head  
+    title my jade template  
+    
+  body  
+    h1 Hello #{context.name}  
+    form(method="post", action="http://localhost:8080/reg/sync_user")
+      p Customer
+        input(type="text", name="customer", value='{"address":"test","addressConsistent":false,"autoApprove":true,"chineseName":"测试","country":"test","countryOther":"","customerGroupCode":"","customerNumber":"70001453","dateOfBirth":null,"email":"test@test.com","englishFirstName":"","englishLastName":"","homePhone":"","homePhonePrefix":"","iamNotAmerican":true,"iamUsCitizen":"false","ibornInUs":false,"idDocument":"0114","idDocumentCountry":"test","idDocumentCountryOther":"","idDocumentNumber":"1234567890","idDocumentNumberMd5":"1234567890","informationFrom":"website","loginname":"","migrateData":false,"mobilePhone":"13012345678","mobilePhonePrefix":"86","nationality":"test","nationalityOther":"","openFrom":"WEBSITE","password":"a123456","passwordRaw":"","postalCode":"","province":"test","remark":"","title":"0081","verifyMethod":""}')
+      p principal
+        input(type="text", name="principal", value='{"companyId":"2","invoker":"hx_website_demo","loginName":"hx9999","remoteIpAddress":"127.0.0.1"}')
+      p token
+        input(type="text", name="token")
+      p
+        input(type="submit", value="submit")
+  pre
+    {"address":"test","addressConsistent":false,"autoApprove":true,"chineseName":"测试","country":"test","countryOther":"","customerGroupCode":"","customerNumber":"","dateOfBirth":null,"email":"test@test.com","englishFirstName":"","englishLastName":"","homePhone":"","homePhonePrefix":"","iamNotAmerican":true,"iamUsCitizen":"false","ibornInUs":false,"idDocument":"0114","idDocumentCountry":"test","idDocumentCountryOther":"","idDocumentNumber":"1234567890","idDocumentNumberMd5":"1234567890","informationFrom":"website","loginname":"","migrateData":false,"mobilePhone":"13012345678","mobilePhonePrefix":"86","nationality":"test","nationalityOther":"","openFrom":"WEBSITE","password":"a123456","passwordRaw":"","postalCode":"","province":"test","remark":"","title":"0081","verifyMethod":""}
+    {"companyId":"2","invoker":"hx_website_demo","loginName":"hx9999","remoteIpAddress":"127.0.0.1"}

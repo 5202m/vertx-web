@@ -1,0 +1,13 @@
+extends ../layout
+
+block content
+  h1= context.title
+  h2 Book List
+  #bookList
+    table
+      thead
+        th Name
+        th Author
+      tbody
+
+  script(src='/js/books.js')
