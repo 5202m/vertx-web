@@ -28,7 +28,10 @@ import io.vertx.ext.web.sstore.LocalSessionStore;
 import io.vertx.ext.web.sstore.SessionStore;
 import io.vertx.ext.web.templ.JadeTemplateEngine;
 import vtx.handler.api.BooksApi;
+import vtx.handler.api.FilesApi;
 import vtx.handler.api.IndexApi;
+import vtx.route.BooksRoute;
+import vtx.route.FilesRoute;
 
 /**
  * Hello world!
@@ -48,6 +51,9 @@ public class App extends AbstractVerticle
 	
 	private IndexApi indexApi;
 	private BooksApi booksApi;
+	private FilesApi filesApi;
+	//private BooksRoute booksRoute;
+	//private FilesRoute filesRoute;
 
     public static void main( String[] args )
     {
@@ -69,6 +75,9 @@ public class App extends AbstractVerticle
         final Router router = Router.router(vertx);
     	this.indexApi = new IndexApi();
     	this.booksApi = new BooksApi(mongo);
+    	this.filesApi = new FilesApi(mongo);
+    	//this.booksRoute = new BooksRoute();
+    	//this.filesRoute = new FilesRoute();
     	deployWebServer(future);
     	//this.indexApi = new IndexApi();
         /*router.get("/").handler(ctx -> {
@@ -117,8 +126,9 @@ public class App extends AbstractVerticle
 	}
 	
 	private Router createRouter() {
+		//final MongoClient mongo = MongoClient.createShared(vertx, mongoConfig());
 		Router router = Router.router(vertx);
-		router.route().handler(BodyHandler.create());
+		//router.route().handler(BodyHandler.create());//加上这句则无法用 uploadHandler 保存文件
 		router.route().failureHandler(ErrorHandler.create(true));
 
 		/* Session / cookies for users */
@@ -133,6 +143,8 @@ public class App extends AbstractVerticle
 
 		/* API */
 		router.mountSubRouter("/", apiRouter());
+		//router.mountSubRouter("/", booksRoute.booksRoute(router, mongo));
+		//router.mountSubRouter("/", filesRoute.filesRoute(router, mongo));
 		
 		//router.route("/eventbus/*").handler(eventBusHandler());
 		//router.route("/gts2event/*").handler(eventBusHandler());
@@ -192,6 +204,9 @@ public class App extends AbstractVerticle
 		
 		router.get("/books").handler(booksApi::index);
 		router.get("/booksList").handler(booksApi::books);
+		
+		router.get("/uploadIndex").handler(filesApi::uploadIndex);
+		router.post("/upload").handler(filesApi::saveFile);
 		
 		System.out.println( "In apiRouter!" );
 		return router;

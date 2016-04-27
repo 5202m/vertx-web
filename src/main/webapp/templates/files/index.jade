@@ -1,0 +1,9 @@
+extends ../layout
+
+block content
+  h1= context.title
+  form(action="upload", method="post", enctype="multipart/form-data")
+    p
+      input(type="file", name="file")
+    p
+      input(type="submit", value="提交")
