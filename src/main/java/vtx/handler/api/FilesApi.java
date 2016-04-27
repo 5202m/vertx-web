@@ -88,9 +88,7 @@ public class FilesApi
             	ObjectId id = new ObjectId();
             	File f = new File(dir + fileName);
             	
-            	MD5Check md5Chk = new MD5Check();
-            	
-                DBObject query  = new BasicDBObject("md5", md5Chk.getFileMD5String(f));
+                DBObject query  = new BasicDBObject("md5", MD5Check.getFileMD5String(f));
                 //System.out.println(query);
                 //gridFSInputFile.getMD5();
                 GridFSDBFile gridFSDBFile = myFS.findOne(query);
