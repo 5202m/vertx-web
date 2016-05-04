@@ -27,38 +27,72 @@ import io.vertx.ext.web.FileUpload;
 import vtx.util.CommonUtil;
 import vtx.util.MD5Check;
 import vtx.util.TemplateEngineUtil;
+import vtx.vert_dao.MongoFSDAO;
 
 public class FilesApi
 {
 	//private static MongoClient mongo;
 	private static MongoClient mongo;
+	//private JsonObject dbConfig;
+	private MongoFSDAO mongoFsDao;
 	
-	public FilesApi(MongoClient mongo){
+	private MD5Check md5Chk;
+	
+	public FilesApi(MongoClient mongo, JsonObject dbConfig){
 		this.mongo = mongo;
+		this.mongoFsDao = new MongoFSDAO(dbConfig);
+		this.md5Chk = new MD5Check();
 	}
 	
 	public void uploadIndex(RoutingContext context){
 		context.put("title", "Upload File");
-        /*try
-		{
-        	Mongo connection = new Mongo("localhost", 27017);  
-        	DB db = connection.getDB("keystone_test");  
-        	DBCollection collection = db.getCollection("fs.files"); 
-        	System.out.println(collection);
-        	GridFS myFS = new GridFS(db);  
-        	ObjectId id = new ObjectId();
-            //InputStream in = new FileInputStream(dir + fileName);
-            DBObject query  = new BasicDBObject("_id", id);
-            GridFSDBFile gridFSDBFile = myFS.findOne(query); 
-            System.out.println(gridFSDBFile);
-        	
-		}
-		catch (Exception e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
 		TemplateEngineUtil.JadeEngine(context, "webapp/templates/files/index.jade"); 
+	}
+	
+	public void saveFile2(RoutingContext context){
+		String dir = System.getProperty("user.dir")+"\\src\\main\\file-uploads\\";
+        context.response().putHeader("Content-Type", "text/plain");
+        context.response().setChunked(true);
+		context.request().setExpectMultipart(true);
+        context.request().uploadHandler(upload -> {
+        	String fileName = upload.filename();
+            
+            upload.streamToFileSystem(dir + fileName);
+            upload.exceptionHandler(cause -> {
+            	context.response().setChunked(true).end("Upload failed");
+            });
+            
+            upload.endHandler(v -> {
+            	try
+    			{
+            		/*MongoDAO mongoDAO = new MongoDAO();
+            		File f = new File(dir + fileName);
+                    DBObject query = new BasicDBObject("md5", md5Chk.getFileMD5String(f));
+                    GridFSDBFile gridFSDBFile = mongoDAO.findOne(query);
+                    if(gridFSDBFile != null){
+                    	System.out.println(gridFSDBFile);
+                    	context.response().setChunked(true).write("file is exit \n");
+                    }
+                    else{
+                    	Object id = mongoDAO.Save(f, fileName);
+                    	System.out.println(id);
+                    	if(id != null){
+                    		context.response().setChunked(true).write("Successfully uploaded to " + fileName + " \n");
+                    	}
+                    	else{
+                    		context.response().setChunked(true).write("file is exit \n");
+                    	}
+                    }*/
+    			}
+    			catch (Exception e)
+    			{
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			}
+            	//context.response().setChunked(true).end("Successfully uploaded to " + upload.filename());
+            	context.response().setChunked(true).end();
+            });
+        });
 	}
 	
 	public void saveFile(RoutingContext context){
@@ -67,53 +101,39 @@ public class FilesApi
         context.response().setChunked(true);
 		context.request().setExpectMultipart(true);
         context.request().uploadHandler(upload -> {
-        	
+        	String fileName = upload.filename();
+            
+            upload.streamToFileSystem(dir + fileName);
+            
             upload.exceptionHandler(cause -> {
             	context.response().setChunked(true).end("Upload failed");
             });
             
             upload.endHandler(v -> {
-            	//context.response().setChunked(true).end("Successfully uploaded to " + upload.filename());
+            	try{
+                    File f = new File(dir + fileName);
+                    DBObject query = new BasicDBObject("md5", md5Chk.getFileMD5String(f));
+                    GridFSDBFile gridFSDBFile = mongoFsDao.findOne(query);
+                    if(gridFSDBFile != null){
+                    	System.out.println(gridFSDBFile);
+                    	context.response().setChunked(true).write("file is exit \n");
+                    }
+                    else{
+                    	Object id = mongoFsDao.Save(f, fileName);
+                    	System.out.println(id);
+                    	if(id != null){
+                    		context.response().setChunked(true).write("Successfully uploaded to " + fileName + " \n");
+                    	}
+                    	else{
+                    		context.response().setChunked(true).write("file is exit \n");
+                    	}
+                    }
+                }
+                catch(Exception e){
+                	context.response().setChunked(true).write("Upload failed. error message:" + e.getMessage() + " \n");
+                }
             	context.response().setChunked(true).end();
             });
-            String fileName = upload.filename();
-            
-            upload.streamToFileSystem(dir + fileName);
-            try
-			{
-            	Mongo connection = new Mongo("localhost", 27017);  
-            	DB db = connection.getDB("keystone_test");  
-            	//DBCollection collection = db.getCollection("fs.files");  
-            	GridFS myFS = new GridFS(db, "fs");  
-            	ObjectId id = new ObjectId();
-            	File f = new File(dir + fileName);
-            	
-                DBObject query  = new BasicDBObject("md5", MD5Check.getFileMD5String(f));
-                //System.out.println(query);
-                //gridFSInputFile.getMD5();
-                GridFSDBFile gridFSDBFile = myFS.findOne(query);
-            	
-                if(gridFSDBFile != null){
-                	//System.out.println(gridFSDBFile);
-                	context.response().setChunked(true).write("file is exit \n");
-                }
-                else{
-                    GridFSInputFile gridFSInputFile = myFS.createFile(f);
-                    gridFSInputFile.setId(id);
-                    gridFSInputFile.setContentType(CommonUtil.getContentType(fileName));
-                    //System.out.println(gridFSInputFile.getContentType());
-                    //System.out.println(gridFSInputFile.getChunkSize());
-                    gridFSInputFile.saveChunks();
-                    gridFSInputFile.save();
-                    context.response().setChunked(true).write("Successfully uploaded to " + upload.filename() + "\n");
-                }
-			}
-			catch (Exception e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
         });
 	}
-	
 }

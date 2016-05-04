@@ -2,9 +2,12 @@ package vtx.vertx_web;
 
 import static io.vertx.core.http.HttpHeaders.CONTENT_TYPE;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Scanner;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
@@ -71,11 +74,14 @@ public class App extends AbstractVerticle
     @Override
     public void start(Future<Void> future) throws Exception {
     	//final JadeTemplateEngine engine = JadeTemplateEngine.create();
-    	final MongoClient mongo = MongoClient.createShared(vertx, mongoConfig());
+    	String data = readFile(System.getProperty("user.dir")+"\\src\\main\\resources\\config.json");
+    	//System.out.println(data);
+    	JsonObject dbConfig = new JsonObject(data);
+    	final MongoClient mongo = MongoClient.createShared(vertx, mongoConfig(data));
         final Router router = Router.router(vertx);
     	this.indexApi = new IndexApi();
     	this.booksApi = new BooksApi(mongo);
-    	this.filesApi = new FilesApi(mongo);
+    	this.filesApi = new FilesApi(mongo, dbConfig);
     	//this.booksRoute = new BooksRoute();
     	//this.filesRoute = new FilesRoute();
     	deployWebServer(future);
@@ -212,12 +218,32 @@ public class App extends AbstractVerticle
 		return router;
 	}
 	
-	private static JsonObject mongoConfig() {
-		JsonObject config = new JsonObject();
-		config.put("host", MONGO_HOST);
-		config.put("port", MONGO_PORT);
-		config.put("db_name", "keystone");
+	private static JsonObject mongoConfig(String dbConfig) {
+		JsonObject config = new JsonObject(dbConfig);
+		config.put("host", config.getString("mongoHost"));
+		config.put("port", config.getInteger("mongoPort"));
+		config.put("db_name", config.getString("mongoDatabase"));
 		return config;
 	}
 
+	private String readFile(String filePath){
+		File file = new File(filePath);
+        Scanner scanner = null;
+        StringBuilder sb = new StringBuilder();
+        try {
+            scanner = new Scanner(file, "utf-8");
+            while (scanner.hasNextLine()) {
+            	sb.append(scanner.nextLine());
+            }
+ 
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block  
+ 
+        } finally {
+            if (scanner != null) {
+                scanner.close();
+            }
+        }
+        return sb.toString();
+	}
 }

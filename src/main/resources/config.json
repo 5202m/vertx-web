@@ -1,0 +1,8 @@
+{
+	"mongoDatabase" : "keystone_test",
+	"mongoHost" : "localhost",
+	"mongoPort" : 27017,
+	"mongoUserName" : "",
+	"mongoPassword" : ""
+	
+}

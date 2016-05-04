@@ -12,7 +12,7 @@ public class FilesRoute
 	
 	public Router filesRoute(Router router, MongoClient client){
 		Router route = router;
-		filesApi = new FilesApi(client);
+		//filesApi = new FilesApi(client);
 		
 		route.get("/uploadIndex").handler(filesApi::uploadIndex);
 		//route.get("/booksList").handler(filesApi::books);

@@ -9,7 +9,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.mongo.MongoClient;
 import io.vertx.ext.web.RoutingContext;
 import vtx.util.TemplateEngineUtil;
-import vtx.vert_dao.MongoDAO;
+import vtx.vert_dao.MongoClientDAO;
 
 public class BooksApi {
 
@@ -26,7 +26,7 @@ public class BooksApi {
 	}
 	
 	public void books(RoutingContext context){
-		MongoDAO mongoDao = new MongoDAO(mongo);
+		MongoClientDAO mongoDao = new MongoClientDAO(mongo);
 		mongoDao.findAll("books", new JsonObject(), result -> {
 			if (result.failed()) {
 				context.fail(result.cause());

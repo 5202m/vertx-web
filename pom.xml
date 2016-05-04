@@ -146,6 +146,11 @@
 		<version>3.2.2</version>
 	</dependency>
     
+    <dependency>
+		<groupId>me.lightspeed7</groupId>
+		<artifactId>mongoFS</artifactId>
+		<version>0.8.1</version>
+	</dependency>
     
 		<dependency>
 			<groupId>junit</groupId>
